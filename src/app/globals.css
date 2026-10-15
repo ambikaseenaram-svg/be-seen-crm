@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Charte BE SEEN */
+@theme {
+  --color-violet: #623cea;
+  --color-creme: #fcfbf1;
+  --color-titre: #311e75;
+  --color-lavande: #efbdeb;
+  --color-bouton: #452aa4;
+  --color-annotation: #9177f0;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-creme);
+  color: var(--color-titre);
+}
+
+@layer components {
+  .champ {
+    @apply w-full rounded-lg border border-annotation/40 bg-white px-3 py-2 text-sm text-titre outline-none transition focus:border-violet focus:ring-2 focus:ring-violet/20;
+  }
+  .champ-erreur {
+    @apply border-lavande bg-lavande/10 ring-2 ring-lavande;
+  }
+  .message-erreur {
+    @apply mt-1 text-xs text-[#b0389f];
+  }
+  .bouton {
+    @apply rounded-lg bg-bouton px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet disabled:cursor-not-allowed disabled:opacity-40;
+  }
 }
