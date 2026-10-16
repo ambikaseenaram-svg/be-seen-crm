@@ -11,7 +11,9 @@
     "db:generer": "drizzle-kit generate",
     "compte:creer": "tsx --env-file-if-exists=.env.local scripts/compte.mts creer",
     "compte:mdp": "tsx --env-file-if-exists=.env.local scripts/compte.mts mdp",
-    "test": "vitest run"
+    "test": "vitest run",
+    "demo:remplir": "tsx scripts/demo.mts remplir",
+    "demo:vider": "tsx scripts/demo.mts vider"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

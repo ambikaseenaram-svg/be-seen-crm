@@ -24,6 +24,20 @@ npm run dev
 
 Puis ouvre http://localhost:3000 dans ton navigateur.
 
+## Données de démonstration (fictives)
+
+```bash
+npm run demo:remplir   # ajoute 8 prospects inventés, préfixés « [DÉMO] »
+npm run demo:vider     # supprime uniquement ces fiches fictives
+```
+
+Aucune donnée client réelle n'est utilisée.
+
+## Raccourcis
+
+- **N** : ajout rapide d'un prospect (depuis n'importe quelle page)
+- **Échap** : ferme une fenêtre ou la fiche
+
 ## Mot de passe oublié
 
 Aucun email n'est envoyé. Lance `npm run compte:mdp`.
