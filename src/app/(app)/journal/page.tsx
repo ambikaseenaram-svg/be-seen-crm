@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import FicheServeur from "@/components/fiche/FicheServeur";
 import FiltresJournal from "@/components/journal/FiltresJournal";
 import { ActionsAFaire, TableauJournal } from "@/components/journal/ListeJournal";
@@ -38,7 +39,9 @@ export default async function PageJournal({ searchParams }: { searchParams: Prom
         ))}
       </div>
 
-      <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-titre">À faire ({aFaire.length})</h2>
+      <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-titre">
+        À faire ({aFaire.length}) · <Link href="/relances" className="normal-case text-bouton hover:text-violet">toutes les relances</Link>
+      </h2>
       <div className="mb-8 rounded-xl bg-white p-4 ring-1 ring-annotation/20">
         <ActionsAFaire actions={aFaire} />
       </div>

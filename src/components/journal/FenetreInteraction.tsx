@@ -16,17 +16,19 @@ export type CibleInteraction = { id: string; nom: string; optOut: boolean; etape
 export default function FenetreInteraction({
   cible,
   existante,
+  initial,
   onFermer,
 }: {
   cible: CibleInteraction;
   existante?: Interaction;
+  initial?: { type?: string; canal?: string }; // pré-remplissage (ex. depuis une relance)
   onFermer: () => void;
 }) {
   const [f, setF] = useState(() => ({
     ...versFormulaire({
       date: existante?.date ?? aujourdhui(),
-      type: existante?.type,
-      canal: existante?.canal,
+      type: existante?.type ?? initial?.type,
+      canal: existante?.canal ?? initial?.canal,
       resultat: existante?.resultat,
       note: existante?.note,
       prochaineAction: "",

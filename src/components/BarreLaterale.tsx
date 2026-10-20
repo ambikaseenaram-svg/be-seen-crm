@@ -5,13 +5,14 @@ import { usePathname } from "next/navigation";
 
 const LIENS = [
   { href: "/", libelle: "Tableau de bord" },
+  { href: "/relances", libelle: "Relances" },
   { href: "/pipeline", libelle: "Pipeline" },
   { href: "/entreprises", libelle: "Entreprises" },
   { href: "/journal", libelle: "Journal" },
   { href: "/donnees", libelle: "Export et données" },
 ];
 
-export default function BarreLaterale() {
+export default function BarreLaterale({ relances = 0 }: { relances?: number }) {
   const chemin = usePathname();
   return (
     <aside className="fixed inset-y-0 left-0 flex w-56 flex-col bg-titre px-3 py-6 text-white">
@@ -28,6 +29,9 @@ export default function BarreLaterale() {
               }`}
             >
               {libelle}
+              {href === "/relances" && relances > 0 && (
+                <span className="ml-2 rounded-full bg-lavande px-2 py-0.5 text-xs font-bold text-titre">{relances}</span>
+              )}
             </Link>
           );
         })}

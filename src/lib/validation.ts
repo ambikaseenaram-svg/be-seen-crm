@@ -144,6 +144,12 @@ export const schemaInteraction = z.object({
   avancerAffaire: z.boolean().optional(),
 });
 
+// Planifier ou reporter une prochaine action : la date est obligatoire et ne peut pas être passée.
+export const schemaPlanification = z.object({
+  prochaineAction: texte(300),
+  dateProchaineAction: z.iso.date(MSG.obligatoire).refine((d) => d >= aujourdhui(), "La date ne peut pas être dans le passé."),
+});
+
 export type Erreurs = Record<string, string>;
 
 // Première erreur de chaque champ, prête à afficher sous le champ.

@@ -25,9 +25,9 @@ const DEMO: Demo[] = [
   { nom: "Fromagerie de la Brie", ville: "Meaux", dep: "77", secteur: "Commerce de bouche", origine: "Passage physique", notes: [2, 5, 2, 2, 5], contact: "Marie Fictive", trajet: 35, angle: "Affineur depuis 3 générations, aucun Reel", affaire: { etape: "Échange engagé", prochaineAction: "Relancer par téléphone", dateProchaineAction: jour(1) }, journal: [[4, "Premier contact", "Téléphone", "Pas de réponse"], [1, "Relance", "Téléphone", "Réponse positive", "Rappeler jeudi"]] },
   { nom: "Boulangerie du Canal", ville: "Torcy", dep: "77", secteur: "Commerce de bouche", origine: "Google Maps", notes: [3, 5, 2, 2, 3], trajet: 15 },
   { nom: "Bistrot Imaginaire", ville: "Serris", dep: "77", secteur: "Restaurant", origine: "Instagram", notes: [5, 5, 5, 3, 0], trajet: 10, affaire: { etape: "Contacté / Visité", prochaineAction: "Envoyer un DM de suivi", dateProchaineAction: jour(-1) }, journal: [[3, "Premier contact", "DM Instagram", "Pas de réponse"]] },
-  { nom: "Atelier Céramique Test", ville: "Bussy-Saint-Georges", dep: "77", secteur: "Artisan/BTP", origine: "LinkedIn", notes: [1, 3, 2, 2, 3], trajet: 15 },
+  { nom: "Atelier Céramique Test", ville: "Bussy-Saint-Georges", dep: "77", secteur: "Artisan/BTP", origine: "LinkedIn", notes: [1, 3, 2, 2, 3], trajet: 15, affaire: { prochaineAction: "Repasser voir le gérant", dateProchaineAction: jour(5) } },
   { nom: "Cave à Vins Fictive", ville: "Champigny-sur-Marne", dep: "94", secteur: "Commerce de bouche", origine: "Passage physique", trajet: 25, affaire: { etape: "Proposition envoyée", prochaineAction: "Appeler pour la décision", dateProchaineAction: jour(-3), offre: "Expérience", montantMensuel: 2200, dureeMois: 6, valeurTotale: 13200, dateProposition: jour(4), budgetValide: true, decideurIdentifie: true } },
-  { nom: "Épicerie Fine Exemple", ville: "Le Perreux-sur-Marne", dep: "94", secteur: "Commerce de bouche", origine: "Recommandation", trajet: 30 },
+  { nom: "Épicerie Fine Exemple", ville: "Le Perreux-sur-Marne", dep: "94", secteur: "Commerce de bouche", origine: "Recommandation", trajet: 30, affaire: { prochaineAction: "Appeler le gérant", dateProchaineAction: jour(0) } },
   { nom: "Pizzeria Démo", ville: "Chelles", dep: "77", secteur: "Restaurant", origine: "Passage physique", notes: [3, 5, 3, 2, 4], optOut: true },
 ];
 

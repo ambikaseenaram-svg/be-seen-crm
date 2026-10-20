@@ -6,6 +6,7 @@ import { affaires, entreprises, interactions, type Interaction } from "@/db/sche
 import { enRetard } from "@/lib/affaires";
 import { aujourdhui } from "@/lib/dates";
 import { canalOptOut, estReponse, etapeSuggeree } from "@/lib/interactions";
+import { estEchue } from "@/lib/relances";
 import { changerEtape, obtenirAffaireOuverte } from "./affaires";
 import { marquerOptOut, obtenirEntreprise } from "./entreprises";
 import type { schemaInteraction } from "@/lib/validation";
@@ -117,6 +118,11 @@ export function creerInteraction(entrepriseId: string, d: z.infer<typeof schemaI
       if (d.prochaineAction) suite.prochaineAction = d.prochaineAction;
       if (d.dateProchaineAction) suite.dateProchaineAction = d.dateProchaineAction;
       if (d.decideurRencontre) suite.decideurIdentifie = true;
+      // L'interaction remplit l'action échue : sans nouvelle date, l'ancienne est retirée (l'affaire repasse dans « Sans prochaine action »).
+      if (!d.dateProchaineAction && estEchue(affaire.dateProchaineAction, aujourdhui())) {
+        suite.dateProchaineAction = null;
+        if (!d.prochaineAction) suite.prochaineAction = null;
+      }
       if (Object.keys(suite).length) db.update(affaires).set({ ...suite, modifieLe: new Date().toISOString() }).where(eq(affaires.id, affaire.id)).run();
       const cible = d.avancerAffaire ? etapeSuggeree(affaire.etape, d.type, d.resultat) : null;
       if (cible) changerEtape(affaire.id, { etape: cible as never, motifPerte: null, offre: null, montantMensuel: null, dureeMois: null });
