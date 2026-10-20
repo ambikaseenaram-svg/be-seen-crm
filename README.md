@@ -27,7 +27,7 @@ Puis ouvre http://localhost:3000 dans ton navigateur.
 ## Données de démonstration (fictives)
 
 ```bash
-npm run demo:remplir   # ajoute 8 prospects inventés, préfixés « [DÉMO] »
+npm run demo:remplir   # ajoute des prospects inventés, préfixés « [DÉMO] »
 npm run demo:vider     # supprime uniquement ces fiches fictives
 ```
 
