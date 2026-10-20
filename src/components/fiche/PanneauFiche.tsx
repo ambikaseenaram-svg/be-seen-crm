@@ -2,15 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { Affaire } from "@/db/schema";
 import type { LigneEntreprise } from "@/lib/donnees/entreprises";
 import { BadgeDisqualifie, BadgeOptOut, PastillePriorite } from "../Pastilles";
+import SectionAffaire from "./SectionAffaire";
 import SectionIdentite from "./SectionIdentite";
 import SectionScoring from "./SectionScoring";
 import SectionConformite from "./SectionConformite";
 import FenetreSuppression from "./FenetreSuppression";
 import { Section } from "./outils";
 
-export default function PanneauFiche({ entreprise: e }: { entreprise: LigneEntreprise }) {
+export default function PanneauFiche({
+  entreprise: e,
+  affaire,
+  historique,
+}: {
+  entreprise: LigneEntreprise;
+  affaire: Affaire | null;
+  historique: Affaire[];
+}) {
   const router = useRouter();
   const chemin = usePathname();
   const params = useSearchParams();
@@ -87,9 +97,7 @@ export default function PanneauFiche({ entreprise: e }: { entreprise: LigneEntre
         </div>
       </div>
 
-      <Section titre="Affaire en cours">
-        <p className="text-sm text-annotation">Étape actuelle : {e.etape ?? "—"}. La gestion des affaires arrive à l&apos;étape 3.</p>
-      </Section>
+      <SectionAffaire entrepriseId={e.id} nom={e.nom} optOut={e.optOut} affaire={affaire} historique={historique} />
       <Section titre="Interactions">
         <p className="text-sm text-annotation">Le journal des contacts arrive à l&apos;étape 4.</p>
       </Section>

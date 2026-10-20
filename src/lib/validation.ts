@@ -4,7 +4,10 @@ import {
   CANAUX_OPT_OUT,
   CANAUX_PREFERES,
   DEPARTEMENTS,
+  ETAPES,
   MODES_COLLAB,
+  MOTIFS_PERTE,
+  OFFRES,
   ORIGINES,
   ROLES_CONTACT,
   SECTEURS,
@@ -85,6 +88,43 @@ export const schemaConformite = z.object({
 export const schemaOptOut = z.object({
   date: z.iso.date(MSG.obligatoire),
   canal: listeObligatoire(CANAUX_OPT_OUT),
+});
+
+const dateFacultative = z.preprocess(versNull, z.iso.date(MSG.obligatoire).nullable());
+const dureeMois = z.preprocess(
+  (v) => (versNull(v) == null ? null : Number(v)),
+  z.number({ error: MSG.positif }).int(MSG.positif).min(1, MSG.positif).max(60, "60 mois maximum.").nullable(),
+);
+
+// Détails d'une affaire. Montant et durée n'ont de sens qu'avec une offre.
+export const schemaAffaire = z
+  .object({
+    prochaineAction: texte(300),
+    dateProchaineAction: dateFacultative,
+    budgetValide: z.boolean(),
+    decideurIdentifie: z.boolean(),
+    offre: liste(OFFRES),
+    montantMensuel: entierPositif,
+    dureeMois,
+    tarifHistorique: z.boolean(),
+    dateProposition: dateFacultative,
+    dateSignature: dateFacultative,
+    motifPerte: liste(MOTIFS_PERTE),
+    notesRdv: texte(2000),
+  })
+  .superRefine((d, ctx) => {
+    if (!d.offre && (d.montantMensuel != null || d.dureeMois != null)) {
+      ctx.addIssue({ code: "custom", path: ["offre"], message: "Choisis l'offre." });
+    }
+  });
+
+// Changement d'étape : les champs exigés par l'étape visée sont contrôlés côté données (champsManquants).
+export const schemaChangementEtape = z.object({
+  etape: listeObligatoire(ETAPES),
+  motifPerte: liste(MOTIFS_PERTE),
+  offre: liste(OFFRES),
+  montantMensuel: entierPositif,
+  dureeMois,
 });
 
 export type Erreurs = Record<string, string>;

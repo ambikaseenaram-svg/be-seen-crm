@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import { exigerConnexion } from "@/lib/auth/session";
+import { INTROUVABLE, executer, valider, type Resultat } from "@/lib/actions";
 import {
   creerEntrepriseRapide,
   majConformite,
@@ -14,43 +12,9 @@ import {
   supprimerEntreprise,
   trouverDoublon,
 } from "@/lib/donnees/entreprises";
-import {
-  erreursParChamp,
-  schemaAjoutRapide,
-  schemaConformite,
-  schemaIdentite,
-  schemaOptOut,
-  schemaScoring,
-  type Erreurs,
-} from "@/lib/validation";
+import { schemaAjoutRapide, schemaConformite, schemaIdentite, schemaOptOut, schemaScoring } from "@/lib/validation";
 
-export type Resultat =
-  | { ok: true; id?: string }
-  | { ok: false; erreurs?: Erreurs; message?: string; doublon?: { id: string; nom: string; ville: string } };
-
-const INTROUVABLE: Resultat = { ok: false, message: "Cette fiche n'existe plus." };
-
-function rafraichir() {
-  revalidatePath("/", "layout");
-}
-
-// Chaque action vérifie la session : une action serveur est appelable directement.
-async function executer(fn: () => Resultat): Promise<Resultat> {
-  await exigerConnexion();
-  try {
-    const r = fn();
-    if (r.ok) rafraichir();
-    return r;
-  } catch (e) {
-    console.error(e);
-    return { ok: false, message: "Une erreur est survenue. Réessaie." };
-  }
-}
-
-function valider<T extends z.ZodType>(schema: T, donnees: unknown): { ok: true; d: z.infer<T> } | { ok: false; r: Resultat } {
-  const p = schema.safeParse(donnees);
-  return p.success ? { ok: true, d: p.data } : { ok: false, r: { ok: false, erreurs: erreursParChamp(p.error) } };
-}
+export type { Resultat };
 
 export async function ajoutRapide(donnees: unknown) {
   return executer(() => {

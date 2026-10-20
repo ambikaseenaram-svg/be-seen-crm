@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { compterEntreprises, listerEntreprises, obtenirEntreprise, type Filtres } from "@/lib/donnees/entreprises";
+import { compterEntreprises, listerEntreprises, type Filtres } from "@/lib/donnees/entreprises";
 import FiltresEntreprises from "./FiltresEntreprises";
 import TableauEntreprises from "./TableauEntreprises";
 import EtatVide from "./EtatVide";
-import PanneauFiche from "@/components/fiche/PanneauFiche";
+import FicheServeur from "@/components/fiche/FicheServeur";
 
 export const metadata: Metadata = { title: "Entreprises · BE SEEN" };
 
@@ -13,7 +13,6 @@ export default async function PageEntreprises({ searchParams }: { searchParams: 
   const { fiche, ...filtres } = await searchParams;
   const total = compterEntreprises();
   const lignes = listerEntreprises(filtres);
-  const ficheOuverte = fiche ? obtenirEntreprise(fiche) : null;
   const filtreActif = Object.values(filtres).some(Boolean);
 
   return (
@@ -39,7 +38,7 @@ export default async function PageEntreprises({ searchParams }: { searchParams: 
         </>
       )}
 
-      {ficheOuverte && <PanneauFiche key={ficheOuverte.id + ficheOuverte.modifieLe} entreprise={ficheOuverte} />}
+      {fiche && <FicheServeur id={fiche} />}
     </section>
   );
 }
