@@ -18,6 +18,7 @@ type Demo = {
   origine: (typeof entreprises.$inferInsert)["origine"]; notes?: [number, number, number, number, number];
   contact?: string; trajet?: number; optOut?: boolean; angle?: string;
   affaire?: Partial<typeof affaires.$inferInsert>; // étape et détails de l'affaire de démonstration
+  collecte?: number; // il y a N jours (par défaut : récent)
   journal?: [number, (typeof interactions.$inferInsert)["type"], (typeof interactions.$inferInsert)["canal"], (typeof interactions.$inferInsert)["resultat"], string?][]; // [il y a N jours, type, canal, résultat, note]
 };
 const DEMO: Demo[] = [
@@ -29,6 +30,9 @@ const DEMO: Demo[] = [
   { nom: "Cave à Vins Fictive", ville: "Champigny-sur-Marne", dep: "94", secteur: "Commerce de bouche", origine: "Passage physique", trajet: 25, affaire: { etape: "Proposition envoyée", prochaineAction: "Appeler pour la décision", dateProchaineAction: jour(-3), offre: "Expérience", montantMensuel: 2200, dureeMois: 6, valeurTotale: 13200, dateProposition: jour(4), budgetValide: true, decideurIdentifie: true } },
   { nom: "Épicerie Fine Exemple", ville: "Le Perreux-sur-Marne", dep: "94", secteur: "Commerce de bouche", origine: "Recommandation", trajet: 30, affaire: { prochaineAction: "Appeler le gérant", dateProchaineAction: jour(0) } },
   { nom: "Brasserie du Test", ville: "Lagny-sur-Marne", dep: "77", secteur: "Restaurant", origine: "Passage physique", notes: [4, 5, 4, 3, 4], contact: "Julie Imaginaire", trajet: 15, affaire: { etape: "Client actif", offre: "Fondations", montantMensuel: 1200, dureeMois: 6, valeurTotale: 7200, dateProposition: jour(12), dateSignature: jour(3), prochaineAction: "Point de démarrage", dateProchaineAction: jour(-4), budgetValide: true, decideurIdentifie: true }, journal: [[14, "Premier contact", "Passage", "Réponse positive"], [10, "RDV", "Passage", "RDV obtenu"], [7, "Envoi de proposition", "Email", "Réponse positive"], [3, "Échange", "Passage", "Réponse positive", "Signature en salle"], [0, "Échange", "Téléphone", "Réponse positive", "Calage du démarrage"]] },
+  { nom: "Café Ancien", ville: "Provins", dep: "77", secteur: "Restaurant", origine: "Google Maps", collecte: 1500 },
+  { nom: "Traiteur Oublié", ville: "Nemours", dep: "77", secteur: "Commerce de bouche", origine: "Salon", collecte: 1400, journal: [[1250, "Premier contact", "Téléphone", "Pas de réponse"]] },
+  { nom: "Ancien Client", ville: "Coulommiers", dep: "77", secteur: "Restaurant", origine: "Recommandation", collecte: 1600, affaire: { etape: "Client terminé", offre: "Fondations", montantMensuel: 1000, dureeMois: 6, valeurTotale: 6000, dateSignature: jour(1300) }, journal: [[1200, "Échange", "Email", "Réponse positive"]] },
   { nom: "Pizzeria Démo", ville: "Chelles", dep: "77", secteur: "Restaurant", origine: "Passage physique", notes: [3, 5, 3, 2, 4], optOut: true },
 ];
 
@@ -47,7 +51,7 @@ if (action === "vider") {
         .insert(entreprises)
         .values({
           nom: PREFIXE + d.nom, ville: d.ville, departement: d.dep, secteur: d.secteur, origine: d.origine,
-          dateCollecte: jour(i + 2), contactNom: d.contact, trajetMin: d.trajet, angleAccroche: d.angle,
+          dateCollecte: jour(d.collecte ?? i + 2), contactNom: d.contact, trajetMin: d.trajet, angleAccroche: d.angle,
           ...notes, ...scoring,
           ...(d.optOut ? { optOut: true, dateOptOut: jour(1), canalOptOut: "Oral" as const } : {}),
         })

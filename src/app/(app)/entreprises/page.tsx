@@ -19,10 +19,17 @@ export default async function PageEntreprises({ searchParams }: { searchParams: 
     <section>
       <div className="mb-6 flex items-baseline justify-between">
         <h1 className="text-2xl font-bold text-titre">Entreprises</h1>
-        <p className="text-sm text-annotation">
-          {lignes.length} fiche{lignes.length > 1 ? "s" : ""}
-          {filtreActif && ` sur ${total}`}
-        </p>
+        <div className="flex items-baseline gap-4">
+          <p className="text-sm text-annotation">
+            {lignes.length} fiche{lignes.length > 1 ? "s" : ""}
+            {filtreActif && ` sur ${total}`}
+          </p>
+          {lignes.length > 0 && (
+            <a href={`/export/prospects?${new URLSearchParams(Object.entries(filtres).filter(([, v]) => v) as [string, string][])}`} download className="text-sm font-semibold text-bouton hover:text-violet">
+              Exporter{filtreActif ? " ce filtre" : ""} (CSV)
+            </a>
+          )}
+        </div>
       </div>
 
       {total === 0 ? (

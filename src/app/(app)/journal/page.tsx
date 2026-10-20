@@ -48,7 +48,12 @@ export default async function PageJournal({ searchParams }: { searchParams: Prom
 
       <div className="mb-2 flex items-baseline justify-between">
         <h2 className="text-sm font-bold uppercase tracking-wide text-titre">Historique</h2>
-        <p className="text-xs text-annotation">
+        <p className="flex items-baseline gap-4 text-xs text-annotation">
+          {total > 0 && (
+            <a href={`/export/echanges?${new URLSearchParams(Object.entries(filtres).filter(([, v]) => v) as [string, string][])}`} download className="text-sm font-semibold text-bouton hover:text-violet">
+              Exporter{filtreActif ? " ce filtre" : ""} (CSV)
+            </a>
+          )}
           {lignes.length < total ? `${lignes.length} plus récentes sur ${total}` : `${total} interaction${total > 1 ? "s" : ""}`}
         </p>
       </div>

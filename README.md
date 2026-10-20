@@ -54,3 +54,11 @@ Copie-le régulièrement (clé USB, cloud perso). Il n'est jamais envoyé sur Gi
 npm install
 npm run installer    # applique les changements de la base, sans effacer tes données
 ```
+
+## Export, sauvegarde et purge
+
+Page **Export et données** :
+
+- **Export CSV** (prospects, affaires, historique d'échanges) : s'ouvre dans Excel, accents corrects. Depuis les pages Entreprises et Journal, le bouton « Exporter ce filtre » ne contient que la liste filtrée.
+- **Sauvegarde** : télécharge une copie complète de la base. À restaurer en remplaçant `data/be-seen.db` (CRM arrêté).
+- **Purge RGPD** : liste les prospects sans échange depuis plus de 3 ans. Rien n'est supprimé sans ta validation ; les clients et les entreprises en opt-out ne sont jamais proposés.
