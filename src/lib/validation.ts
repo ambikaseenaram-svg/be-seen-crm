@@ -1,7 +1,9 @@
 // Schémas de saisie des fiches Entreprises. Messages = section 7 du document « Écrans et parcours ».
 import { z } from "zod";
+import { aujourdhui } from "./dates";
 import {
   CANAUX_OPT_OUT,
+  CANAUX_INTERACTION,
   CANAUX_PREFERES,
   DEPARTEMENTS,
   ETAPES,
@@ -9,8 +11,10 @@ import {
   MOTIFS_PERTE,
   OFFRES,
   ORIGINES,
+  RESULTATS_INTERACTION,
   ROLES_CONTACT,
   SECTEURS,
+  TYPES_INTERACTION,
   TYPES_COORDONNEES,
 } from "./listes";
 
@@ -125,6 +129,19 @@ export const schemaChangementEtape = z.object({
   offre: liste(OFFRES),
   montantMensuel: entierPositif,
   dureeMois,
+});
+
+// Une interaction. Les champs « prochaine action » et « avancer l'affaire » ne servent qu'à la création.
+export const schemaInteraction = z.object({
+  date: z.iso.date(MSG.obligatoire).refine((d) => d <= aujourdhui(), "La date ne peut pas être dans le futur."),
+  type: listeObligatoire(TYPES_INTERACTION),
+  canal: listeObligatoire(CANAUX_INTERACTION),
+  resultat: listeObligatoire(RESULTATS_INTERACTION),
+  decideurRencontre: z.boolean(),
+  note: texte(2000),
+  prochaineAction: texte(300).optional(),
+  dateProchaineAction: dateFacultative.optional(),
+  avancerAffaire: z.boolean().optional(),
 });
 
 export type Erreurs = Record<string, string>;

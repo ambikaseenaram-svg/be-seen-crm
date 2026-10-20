@@ -1,5 +1,6 @@
 import { listerAffairesFermees, obtenirAffaireOuverte } from "@/lib/donnees/affaires";
 import { obtenirEntreprise } from "@/lib/donnees/entreprises";
+import { listerParEntreprise } from "@/lib/donnees/interactions";
 import PanneauFiche from "./PanneauFiche";
 
 // Charge la fiche, son affaire ouverte et l'historique, pour toute page qui ouvre ?fiche=…
@@ -10,6 +11,7 @@ export default function FicheServeur({ id }: { id: string }) {
   return (
     <PanneauFiche
       key={entreprise.id + entreprise.modifieLe + (affaire?.modifieLe ?? "")}
+      interactions={listerParEntreprise(id)}
       entreprise={entreprise}
       affaire={affaire}
       historique={listerAffairesFermees(id)}
