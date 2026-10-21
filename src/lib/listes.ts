@@ -80,3 +80,9 @@ export const RESULTATS_INTERACTION = [
   "RDV obtenu",
   "Opt-out demandé",
 ] as const;
+
+// Contacter les prospects par email : un premier email, puis une seule relance au plus.
+export const MODELES_EMAIL = ["Premier email", "Relance"] as const;
+
+// Brouillon → En cours (envoi parti vers le serveur mail) → Envoyé ou Échec. Exclu : retiré au moment de l'envoi.
+export const STATUTS_ENVOI = ["Brouillon", "En cours", "Envoyé", "Échec", "Exclu"] as const;

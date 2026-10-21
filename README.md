@@ -66,3 +66,24 @@ Page **Export et données** :
 ## Trouver des commerces
 
 Page **Trouver des commerces** : recherche dans l'annuaire officiel (API Recherche d'entreprises, gratuite, sans clé) par ville, code postal ou département, et par type de commerce. Jusqu'à 20 commerces indépendants et ouverts, avec nom, activité, adresse et SIRET. Les fiches ajoutées arrivent à l'étape « Repéré » avec le rappel « À analyser », la source « data.gouv.fr » et la date du jour. Aucun doublon par SIRET. Après une mise à jour, lance `npm run installer` (ajoute les colonnes SIRET et adresse sans toucher à tes données).
+
+## Contacter les prospects (email)
+
+1. **Entreprises** : coche les prospects qui ont une adresse email enregistrée (20 au plus), puis **Préparer les brouillons**. Les cases sont grisées pour les prospects sans email, opposés, qui ont déjà répondu, clients, disqualifiés ou en pause : survole la case pour voir le motif.
+2. **Contacter les prospects** : relis chaque brouillon, remplace chaque texte « [À compléter… » (une phrase personnelle, et l'origine de l'adresse quand elle est inconnue), puis **Enregistrer**.
+3. Coche « J'ai relu… et je valide ce lot », puis **Valider et envoyer**. Juste avant chaque envoi, le CRM revérifie l'opposition, les réponses et l'adresse.
+
+Règles : un premier email, puis une seule relance 7 jours après au plus tôt (section « Relances possibles »). Une réponse ou une opposition notée sur la fiche arrête tout. Jamais deux fois le même email au même prospect, et 20 emails par jour au plus. Chaque envoi est noté au **Journal des envois** (date, destinataire, succès ou échec) et dans le journal des interactions. Une réponse « STOP » : bouton **A répondu STOP**.
+
+Configuration (une seule fois) : ajoute dans `.env.local`, puis redémarre le CRM :
+
+```
+SMTP_HOTE=smtp.gmail.com
+SMTP_PORT=465
+SMTP_UTILISATEUR=ton-adresse@ton-domaine.fr
+SMTP_MOT_DE_PASSE=mot-de-passe-d-application
+EMAIL_NOM=Ambika
+EMAIL_IDENTITE=Ambika Seenaram — BE SEEN, Social Media Manager freelance (restaurants et commerces de bouche), Seine-et-Marne — SIRET …
+```
+
+Les emails partent de ta propre boîte mail professionnelle, un par un, en texte simple. Le mot de passe reste dans `.env.local` (jamais dans Git ni dans le navigateur). Après une mise à jour, lance `npm run installer` (ajoute la table des envois).

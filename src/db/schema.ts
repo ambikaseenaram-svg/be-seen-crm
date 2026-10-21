@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 import {
   SECTEURS,
@@ -15,6 +16,8 @@ import {
   TYPES_INTERACTION,
   CANAUX_INTERACTION,
   RESULTATS_INTERACTION,
+  MODELES_EMAIL,
+  STATUTS_ENVOI,
 } from "@/lib/listes";
 
 // Dates : texte ISO « AAAA-MM-JJ ». Horodatages : texte ISO complet.
@@ -134,7 +137,35 @@ export const interactions = sqliteTable(
   (t) => [index("interactions_entreprise").on(t.entrepriseId), index("interactions_date").on(t.date)],
 );
 
+// Table 4 — Envois d'emails (brouillons et journal des envois)
+export const envois = sqliteTable(
+  "envois",
+  {
+    id: id(),
+    entrepriseId: text("entreprise_id")
+      .notNull()
+      .references(() => entreprises.id, { onDelete: "cascade" }),
+    modele: text("modele", { enum: MODELES_EMAIL }).notNull(),
+    destinataire: text("destinataire").notNull(), // copiée telle quelle depuis la fiche, jamais devinée
+    objet: text("objet").notNull(),
+    corps: text("corps").notNull(),
+    origineCoordonnees: text("origine_coordonnees").notNull(),
+    statut: text("statut", { enum: STATUTS_ENVOI }).notNull(),
+    raison: text("raison"), // motif d'exclusion ou erreur du serveur mail
+    envoyeLe: text("envoye_le"), // horodatage de la tentative d'envoi
+    creeLe: horodatage("cree_le"),
+    modifieLe: horodatage("modifie_le"),
+  },
+  (t) => [
+    index("envois_entreprise").on(t.entrepriseId),
+    // Garde-fous en base : un seul brouillon par prospect, et jamais deux fois le même email au même prospect.
+    uniqueIndex("envois_un_brouillon").on(t.entrepriseId).where(sql`statut = 'Brouillon'`),
+    uniqueIndex("envois_jamais_deux_fois").on(t.entrepriseId, t.modele).where(sql`statut in ('En cours', 'Envoyé')`),
+  ],
+);
+
 export type Utilisateur = typeof utilisateurs.$inferSelect;
 export type Entreprise = typeof entreprises.$inferSelect;
 export type Affaire = typeof affaires.$inferSelect;
 export type Interaction = typeof interactions.$inferSelect;
+export type Envoi = typeof envois.$inferSelect;

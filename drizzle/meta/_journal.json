@@ -15,6 +15,13 @@
       "when": 1792584493792,
       "tag": "0001_colossal_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792593143079,
+      "tag": "0002_envois",
+      "breakpoints": true
     }
   ]
 }

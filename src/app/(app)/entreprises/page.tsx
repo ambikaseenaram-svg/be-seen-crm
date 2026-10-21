@@ -4,6 +4,7 @@ import FiltresEntreprises from "./FiltresEntreprises";
 import TableauEntreprises from "./TableauEntreprises";
 import EtatVide from "./EtatVide";
 import FicheServeur from "@/components/fiche/FicheServeur";
+import { eligibilites } from "@/lib/donnees/emails";
 
 export const metadata: Metadata = { title: "Entreprises · BE SEEN" };
 
@@ -40,7 +41,7 @@ export default async function PageEntreprises({ searchParams }: { searchParams: 
           {lignes.length === 0 ? (
             <EtatVide recherche={filtres.q ?? ""} />
           ) : (
-            <TableauEntreprises lignes={lignes} ficheId={fiche} />
+            <TableauEntreprises lignes={lignes} ficheId={fiche} eligibles={eligibilites()} />
           )}
         </>
       )}
