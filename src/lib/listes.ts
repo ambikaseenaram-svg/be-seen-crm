@@ -28,6 +28,7 @@ export const ORIGINES = [
   "Salon",
   "Recommandation",
   "Offre d'emploi",
+  "data.gouv.fr",
 ] as const;
 
 export const TYPES_COORDONNEES = ["Pro générique", "Pro nominative", "Perso"] as const;

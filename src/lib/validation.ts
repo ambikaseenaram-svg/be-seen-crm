@@ -150,6 +150,17 @@ export const schemaPlanification = z.object({
   dateProchaineAction: z.iso.date(MSG.obligatoire).refine((d) => d >= aujourdhui(), "La date ne peut pas être dans le passé."),
 });
 
+// Un commerce trouvé dans l'annuaire officiel, prêt à être ajouté. Seuls des champs connus : rien d'inventé.
+export const schemaCommerce = z.object({
+  siret: z.string().regex(/^\d{14}$/, "SIRET invalide."),
+  nom: texteObligatoire(),
+  ville: texteObligatoire(),
+  adresse: texte(300),
+  departement: liste(DEPARTEMENTS),
+  secteur: listeObligatoire(SECTEURS),
+});
+export const schemaCommerces = z.array(schemaCommerce).min(1, "Sélectionne au moins un commerce.").max(25);
+
 export type Erreurs = Record<string, string>;
 
 // Première erreur de chaque champ, prête à afficher sous le champ.

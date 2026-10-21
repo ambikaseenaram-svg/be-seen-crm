@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 import {
   SECTEURS,
   DEPARTEMENTS,
@@ -39,6 +39,8 @@ export const entreprises = sqliteTable(
     nom: text("nom").notNull(),
     secteur: text("secteur", { enum: SECTEURS }),
     ville: text("ville").notNull(),
+    adresse: text("adresse"),
+    siret: text("siret"), // 14 chiffres, renseigné par « Trouver des commerces » ; unique quand il existe
     departement: text("departement", { enum: DEPARTEMENTS }),
     modeCollab: text("mode_collab", { enum: MODES_COLLAB }),
     contactNom: text("contact_nom"),
@@ -79,7 +81,7 @@ export const entreprises = sqliteTable(
     creeLe: horodatage("cree_le"),
     modifieLe: horodatage("modifie_le"),
   },
-  (t) => [index("entreprises_nom_ville").on(t.nom, t.ville)],
+  (t) => [index("entreprises_nom_ville").on(t.nom, t.ville), uniqueIndex("entreprises_siret").on(t.siret)],
 );
 
 // Table 2 — Affaires (une seule ouverte à la fois par entreprise, contrôlé par l'application)
