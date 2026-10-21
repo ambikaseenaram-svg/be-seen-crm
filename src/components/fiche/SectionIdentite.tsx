@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Entreprise } from "@/db/schema";
 import { CANAUX_PREFERES, DEPARTEMENTS, MODES_COLLAB, ROLES_CONTACT, SECTEURS } from "@/lib/listes";
+import { formaterSiret } from "@/lib/commerces";
 import { lienInstagram, lienWeb } from "@/lib/texte";
 import { modifierIdentite } from "@/app/(app)/entreprises/actions";
 import { Champ, Liste } from "../ui/Champ";
@@ -79,6 +80,8 @@ export default function SectionIdentite({ entreprise: e }: { entreprise: Entrepr
       <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
         <Valeur libelle="Secteur" valeur={e.secteur} indispensable />
         <Valeur libelle="Département" valeur={e.departement} indispensable />
+        {e.adresse && <Valeur libelle="Adresse" valeur={e.adresse} className="col-span-2" />}
+        {e.siret && <Valeur libelle="SIRET" valeur={<span className="tabular-nums">{formaterSiret(e.siret)}</span>} />}
         <Valeur libelle="Mode de collaboration" valeur={e.modeCollab} indispensable />
         <Valeur libelle="Temps de trajet" valeur={e.trajetMin != null ? `${e.trajetMin} min` : null} />
         <Valeur libelle="Contact" valeur={e.contactNom} indispensable />

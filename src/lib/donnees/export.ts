@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { affaires, entreprises, type Affaire, type Interaction } from "@/db/schema";
 import { construireCsv, type Colonne } from "@/lib/csv";
+import { formaterSiret } from "@/lib/commerces";
 import { formaterDate } from "@/lib/dates";
 import { listerEntreprises, type Filtres, type LigneEntreprise } from "./entreprises";
 import { listerJournal, type FiltresJournal } from "./interactions";
@@ -12,6 +13,8 @@ const d = formaterDate;
 const COLONNES_PROSPECTS: Colonne<LigneEntreprise>[] = [
   { titre: "Nom", valeur: (e) => e.nom },
   { titre: "Ville", valeur: (e) => e.ville },
+  { titre: "Adresse", valeur: (e) => e.adresse },
+  { titre: "SIRET", valeur: (e) => (e.siret ? formaterSiret(e.siret) : null) },
   { titre: "Département", valeur: (e) => e.departement },
   { titre: "Secteur", valeur: (e) => e.secteur },
   { titre: "Étape", valeur: (e) => e.etape },

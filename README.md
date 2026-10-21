@@ -62,3 +62,7 @@ Page **Export et données** :
 - **Export CSV** (prospects, affaires, historique d'échanges) : s'ouvre dans Excel, accents corrects. Depuis les pages Entreprises et Journal, le bouton « Exporter ce filtre » ne contient que la liste filtrée.
 - **Sauvegarde** : télécharge une copie complète de la base. À restaurer en remplaçant `data/be-seen.db` (CRM arrêté).
 - **Purge RGPD** : liste les prospects sans échange depuis plus de 3 ans. Rien n'est supprimé sans ta validation ; les clients et les entreprises en opt-out ne sont jamais proposés.
+
+## Trouver des commerces
+
+Page **Trouver des commerces** : recherche dans l'annuaire officiel (API Recherche d'entreprises, gratuite, sans clé) par ville, code postal ou département, et par type de commerce. Jusqu'à 20 commerces indépendants et ouverts, avec nom, activité, adresse et SIRET. Les fiches ajoutées arrivent à l'étape « Repéré » avec le rappel « À analyser », la source « data.gouv.fr » et la date du jour. Aucun doublon par SIRET. Après une mise à jour, lance `npm run installer` (ajoute les colonnes SIRET et adresse sans toucher à tes données).

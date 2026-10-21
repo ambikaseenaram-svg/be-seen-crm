@@ -8,6 +8,7 @@ const LIENS = [
   { href: "/relances", libelle: "Relances" },
   { href: "/pipeline", libelle: "Pipeline" },
   { href: "/entreprises", libelle: "Entreprises" },
+  { href: "/trouver", libelle: "Trouver des commerces" },
   { href: "/journal", libelle: "Journal" },
   { href: "/donnees", libelle: "Export et données" },
 ];
