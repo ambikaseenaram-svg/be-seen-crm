@@ -20,9 +20,14 @@ export default function EtatVide({ recherche }: { recherche?: string }) {
   return (
     <div className="rounded-2xl bg-white p-10 text-center ring-1 ring-annotation/20">
       <p className="mb-4 text-titre">Aucune entreprise. Commence par ajouter un prospect repéré aujourd&apos;hui.</p>
-      <button type="button" onClick={ouvrirAjoutRapide} className="bouton">
-        + Ajout rapide
-      </button>
+      <div className="flex items-center justify-center gap-4">
+        <button type="button" onClick={ouvrirAjoutRapide} className="bouton">
+          + Ajout rapide
+        </button>
+        <Link href="/importer" className="text-sm font-semibold text-bouton hover:text-violet">
+          Importer un fichier Excel
+        </Link>
+      </div>
     </div>
   );
 }

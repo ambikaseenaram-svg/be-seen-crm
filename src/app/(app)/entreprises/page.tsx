@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { compterEntreprises, listerEntreprises, type Filtres } from "@/lib/donnees/entreprises";
 import FiltresEntreprises from "./FiltresEntreprises";
 import TableauEntreprises from "./TableauEntreprises";
@@ -21,6 +22,9 @@ export default async function PageEntreprises({ searchParams }: { searchParams: 
       <div className="mb-6 flex items-baseline justify-between">
         <h1 className="text-2xl font-bold text-titre">Entreprises</h1>
         <div className="flex items-baseline gap-4">
+          <Link href="/importer" className="text-sm font-semibold text-bouton hover:text-violet">
+            Importer un fichier
+          </Link>
           <p className="text-sm text-annotation">
             {lignes.length} fiche{lignes.length > 1 ? "s" : ""}
             {filtreActif && ` sur ${total}`}

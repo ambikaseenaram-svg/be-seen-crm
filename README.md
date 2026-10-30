@@ -87,3 +87,7 @@ EMAIL_IDENTITE=Ambika Seenaram — BE SEEN, Social Media Manager freelance (rest
 ```
 
 Les emails partent de ta propre boîte mail professionnelle, un par un, en texte simple. Le mot de passe reste dans `.env.local` (jamais dans Git ni dans le navigateur). Après une mise à jour, lance `npm run installer` (ajoute la table des envois).
+
+## Importer des prospects (fichier Excel)
+
+**Entreprises → Importer un fichier.** Dans Excel : Fichier → Enregistrer sous → type « CSV UTF-8 (délimité par des virgules) ». Choisis le fichier, puis l'origine des prospects. Le CRM reconnaît les titres courants (Nom, Ville, Code postal, Téléphone, Email, Instagram, Abonnés, Notes…) ; tu peux corriger chaque colonne ou l'ignorer. L'aperçu classe chaque ligne : à importer, doublon (même SIRET, ou même nom et ville, dans le CRM ou dans le fichier) ou erreur (nom ou ville manquant, email invalide, SIRET abîmé). Seules les lignes valides sont importées, à l'étape « Repéré » avec le rappel « À analyser », l'origine choisie et la date du jour. Une case vide reste vide ; jamais d'opt-out, de score ni de priorité venus du fichier.
