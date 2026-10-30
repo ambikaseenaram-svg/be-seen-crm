@@ -15,6 +15,11 @@ export type Analyse =
   | { ok: false; message: string };
 
 const cleNomVille = (nom: string, ville: string) => `${normaliser(nom)}|${normaliser(ville)}`;
+// « 01 48 80 07 12 » et « +33 1 48 80 07 12 » : même numéro.
+const cleTelephone = (t: string | null) => {
+  const chiffres = (t ?? "").replace(/\D/g, "").replace(/^33(?=\d{9}$)/, "0");
+  return chiffres.length >= 9 ? chiffres : null;
+};
 
 // Lit le fichier, applique la correspondance des colonnes et classe chaque ligne. N'écrit rien.
 export function analyserFichier(texte: string, origine: (typeof ORIGINES)[number], choix?: Correspondance): Analyse {
@@ -26,11 +31,13 @@ export function analyserFichier(texte: string, origine: (typeof ORIGINES)[number
   const probleme = erreurCorrespondance(correspondance);
   if (probleme) return { ok: true, entetes, correspondance, probleme, lignes: [], aImporter: 0 };
 
-  const existants = db.select({ nom: entreprises.nom, ville: entreprises.ville, siret: entreprises.siret }).from(entreprises).all();
+  const existants = db.select({ nom: entreprises.nom, ville: entreprises.ville, siret: entreprises.siret, telephone: entreprises.telephone }).from(entreprises).all();
   const sirets = new Set(existants.map((e) => e.siret).filter(Boolean));
   const nomsVilles = new Set(existants.map((e) => cleNomVille(e.nom, e.ville)));
+  const telephones = new Map(existants.flatMap((e) => (cleTelephone(e.telephone) ? [[cleTelephone(e.telephone)!, e.nom] as const] : [])));
   const vusSirets = new Map<string, number>();
   const vusNomsVilles = new Map<string, number>();
+  const vusTelephones = new Map<string, number>();
 
   // Ligne 1 = titres : la première ligne de données est la ligne 2, comme dans Excel.
   const lignes = donnees.map((cellules, i): LigneAnalysee => {
@@ -38,13 +45,17 @@ export function analyserFichier(texte: string, origine: (typeof ORIGINES)[number
     if (l.erreurs.length) return { ...l, statut: "erreur" };
     const { siret, nom, ville } = l.valeurs;
     const cle = cleNomVille(nom, ville);
+    const tel = cleTelephone(l.valeurs.telephone);
     let doublon: string | undefined;
     if (siret && sirets.has(siret)) doublon = "Déjà dans le CRM (même SIRET)";
     else if (nomsVilles.has(cle)) doublon = "Déjà dans le CRM (même nom et ville)";
+    else if (tel && telephones.has(tel)) doublon = `Déjà dans le CRM (même téléphone que « ${telephones.get(tel)} »)`;
     else if (siret && vusSirets.has(siret)) doublon = `Même SIRET que la ligne ${vusSirets.get(siret)}`;
     else if (vusNomsVilles.has(cle)) doublon = `Même nom et ville que la ligne ${vusNomsVilles.get(cle)}`;
+    else if (tel && vusTelephones.has(tel)) doublon = `Même téléphone que la ligne ${vusTelephones.get(tel)}`;
     if (doublon) return { ...l, statut: "doublon", doublon };
     if (siret) vusSirets.set(siret, l.numero);
+    if (tel) vusTelephones.set(tel, l.numero);
     vusNomsVilles.set(cle, l.numero);
     return { ...l, statut: "ok" };
   });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detecterColonnes, erreurCorrespondance, lireCsv, lireLigne } from "./import";
+import { detecterColonnes, erreurCorrespondance, lieuDansAdresse, lireCsv, lireLigne } from "./import";
 
 describe("lireCsv", () => {
   it("Excel français : « ; », BOM, guillemets, retour à la ligne dans une cellule, lignes vides", () => {
@@ -55,11 +55,42 @@ describe("lireLigne", () => {
   });
 
   it("avertissements : 0 du téléphone rétabli, secteur ou origine inconnus laissés de côté", () => {
-    const l = lireLigne(["A", "Meaux", "", "", "612345678", "", "Traiteur", "", "Facebook"], c, "Salon", 2);
+    const l = lireLigne(["A", "Meaux", "", "", "612345678", "", "Plomberie", "", "Facebook"], c, "Salon", 2);
     expect(l.valeurs.telephone).toBe("0612345678");
     expect(l.valeurs.secteur).toBeNull();
     expect(l.valeurs.origine).toBe("Salon");
     expect(l.avertissements).toHaveLength(3);
     expect(lireLigne(["A", "Meaux", "", "", "", "", "", "", "instagram"], c, "Salon", 2).valeurs.origine).toBe("Instagram");
+  });
+});
+
+describe("export Google (Places)", () => {
+  const entetes = ["nom", "adresse", "telephone", "site_web", "type", "note", "nombre_avis", "siret", "code_postal", "commune", "source", "ville"];
+  const c = detecterColonnes(entetes);
+  const ligne = (adresse: string, siret = "", cp = "", ville = "Champigny-sur-Marne") =>
+    lireLigne(["Bakery 27", adresse, "", "", "Boulangerie", "4.3", "127", siret, cp, "", "Google Places API", ville], c, "Salon", 2);
+
+  it("« ville » passe avant « commune », « note » (sur 5) n'est pas un angle d'accroche, « site_web » et « type » sont reconnus", () => {
+    expect(c).toEqual(["nom", "adresse", "telephone", "siteUrl", "secteur", null, null, "siret", "codePostal", null, "origine", "ville"]);
+  });
+
+  it("ville et département pris dans l'adresse, secteur déduit du métier, source Google reconnue", () => {
+    const l = ligne("27 Av. Nelson Mandela, 94350 Villiers-sur-Marne");
+    expect(l.valeurs).toMatchObject({ ville: "Villiers-sur-Marne", departement: "94", secteur: "Commerce de bouche", origine: "Google Maps" });
+    expect(l.avertissements).toEqual(["Ville prise dans l'adresse : Villiers-sur-Marne (et non Champigny-sur-Marne)"]);
+    expect(ligne("Rue Diderot, 94500 Champigny-sur-Marne").avertissements).toEqual([]);
+  });
+
+  it("SIRET d'une autre commune écarté, SIRET cohérent gardé", () => {
+    const faux = ligne("28 Rte de la Libération, 94430 Chennevières-sur-Marne", "39220254500035", "83160");
+    expect(faux.valeurs.siret).toBeNull();
+    expect(faux.avertissements.join()).toContain("SIRET écarté");
+    expect(ligne("Rue Diderot, 94500 Champigny-sur-Marne", "52995893600013", "94500").valeurs.siret).toBe("52995893600013");
+  });
+
+  it("lieuDansAdresse", () => {
+    expect(lieuDansAdresse("Centre Commercial, 19 Bd Jean Monnet, 94360 Bry-sur-Marne")).toEqual({ codePostal: "94360", ville: "Bry-sur-Marne" });
+    expect(lieuDansAdresse("D3, 94500 Champigny-sur-Marne")?.ville).toBe("Champigny-sur-Marne");
+    expect(lieuDansAdresse("12 rue de la Paix")).toBeNull();
   });
 });

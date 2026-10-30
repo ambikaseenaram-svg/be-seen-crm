@@ -57,6 +57,11 @@ describe("import", () => {
     expect(b.ok && b.aImporter).toBe(0);
   });
 
+  it("même téléphone = doublon, quel que soit le format", () => {
+    const a = m.i.analyserFichier("Nom;Ville;Téléphone\r\nLe Fournil;Villiers;09 55 45 60 24\r\nLes délices du Four;Villiers;+33 9 55 45 60 24", "Salon");
+    expect(a.ok && a.lignes.map((l) => l.doublon ?? l.statut)).toEqual(["ok", "Même téléphone que la ligne 2"]);
+  });
+
   it("fichier vide ou colonnes manquantes", () => {
     expect(m.i.analyserFichier("Nom;Ville\r\n", "Salon")).toMatchObject({ ok: false });
     const a = m.i.analyserFichier("Établissement;Lieu\r\nA;B", "Salon");

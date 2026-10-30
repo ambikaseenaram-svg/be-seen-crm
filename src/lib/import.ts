@@ -55,7 +55,7 @@ export const CHAMPS = {
   codePostal: { libelle: "Code postal (sert au département)", titres: ["code postal", "cp", "code_postal"] },
   adresse: { libelle: "Adresse", titres: ["adresse", "adresse postale", "rue"] },
   siret: { libelle: "SIRET", titres: ["siret", "n° siret", "numero siret"] },
-  secteur: { libelle: "Secteur", titres: ["secteur", "secteur d'activite"] },
+  secteur: { libelle: "Secteur", titres: ["secteur", "secteur d'activite", "type", "categorie", "activite"] },
   departement: { libelle: "Département", titres: ["departement", "dept", "dep"] },
   contactNom: { libelle: "Contact", titres: ["contact", "nom du contact", "interlocuteur", "gerant", "responsable", "prenom nom", "nom prenom"] },
   telephone: { libelle: "Téléphone", titres: ["telephone", "tel", "tel.", "portable", "mobile", "numero", "numero de telephone"] },
@@ -63,7 +63,8 @@ export const CHAMPS = {
   instagramUrl: { libelle: "Instagram", titres: ["instagram", "insta", "compte instagram"] },
   siteUrl: { libelle: "Site web", titres: ["site", "site web", "site internet", "url"] },
   abonnesInsta: { libelle: "Abonnés Instagram", titres: ["abonnes", "abonnes instagram", "abonnes insta", "followers", "nombre d'abonnes"] },
-  angleAccroche: { libelle: "Angle d'accroche / notes", titres: ["angle", "angle d'accroche", "accroche", "notes", "note", "commentaire", "commentaires", "remarques"] },
+  // Pas « note » seul : dans un export Google, c'est la note sur 5.
+  angleAccroche: { libelle: "Angle d'accroche / notes", titres: ["angle", "angle d'accroche", "accroche", "notes", "commentaire", "commentaires", "remarques"] },
   origine: { libelle: "Origine", titres: ["origine", "source"] },
 } as const;
 
@@ -71,14 +72,37 @@ export type Champ = keyof typeof CHAMPS;
 // Une case par colonne du fichier : le champ du CRM qu'elle remplit, ou null (ignorée).
 export type Correspondance = (Champ | null)[];
 
+// « code_postal », « Code postal » et « CODE POSTAL » se valent.
+const titreNormalise = (titre: string) => normaliser(titre.replace(/_/g, " ")).replace(/[’]/g, "'");
+
+// Chaque champ prend la colonne dont le titre est le plus proche du sien : « ville » passe avant « commune ».
 export function detecterColonnes(entetes: string[]): Correspondance {
-  const pris = new Set<Champ>();
-  return entetes.map((titre) => {
-    const t = normaliser(titre).replace(/[’]/g, "'");
-    const champ = (Object.keys(CHAMPS) as Champ[]).find((c) => !pris.has(c) && (CHAMPS[c].titres as readonly string[]).includes(t)) ?? null;
-    if (champ) pris.add(champ);
-    return champ;
-  });
+  const titres = entetes.map(titreNormalise);
+  const resultat: Correspondance = entetes.map(() => null);
+  for (const champ of Object.keys(CHAMPS) as Champ[]) {
+    const synonymes = CHAMPS[champ].titres as readonly string[];
+    const candidats = titres.map((t, i) => ({ i, rang: synonymes.indexOf(t) })).filter((x) => x.rang >= 0 && !resultat[x.i]);
+    const meilleur = candidats.sort((a, b) => a.rang - b.rang)[0];
+    if (meilleur) resultat[meilleur.i] = champ;
+  }
+  return resultat;
+}
+
+// « 83 Bd de Stalingrad, 94500 Champigny-sur-Marne » → code postal et ville réels de l'établissement.
+export function lieuDansAdresse(adresse: string | null): { codePostal: string; ville: string } | null {
+  const m = adresse?.match(/\b(\d{5})\s+([^,\d][^,]*)$/);
+  return m ? { codePostal: m[1], ville: m[2].trim() } : null;
+}
+
+// Une source écrite autrement que dans la liste du CRM (« Google Places API ») reste reconnue.
+function origineReconnue(v: string): Origine | null {
+  const exacte = ORIGINES.find((x) => normaliser(x) === normaliser(v));
+  if (exacte) return exacte;
+  const n = normaliser(v);
+  if (n.includes("google")) return "Google Maps";
+  if (n.includes("insta")) return "Instagram";
+  if (n.includes("linkedin")) return "LinkedIn";
+  return null;
 }
 
 export function erreurCorrespondance(c: Correspondance): string | null {
@@ -111,6 +135,17 @@ export type Valeurs = {
 
 export type LigneLue = { numero: number; valeurs: Valeurs; erreurs: string[]; avertissements: string[] };
 
+const METIERS_BOUCHE = ["boulang", "patiss", "bouch", "charcut", "fromag", "epicer", "cave", "caviste", "chocolat", "traiteur", "primeur", "poissonn", "glacier", "torref"];
+const METIERS_RESTO = ["restaurant", "bistro", "brasserie", "pizzeria", "creperie", "cafe", "bar", "brunch", "cantine"];
+
+// « Boulangerie », « Pâtisserie », « Pizzeria »… : le métier indiqué dans le fichier donne le secteur du CRM.
+function secteurDuMetier(v: string): Valeurs["secteur"] {
+  const n = normaliser(v);
+  if (METIERS_BOUCHE.some((m) => n.includes(m))) return "Commerce de bouche";
+  if (METIERS_RESTO.some((m) => n.split(/[\s-]+/).some((mot) => mot.startsWith(m)))) return "Restaurant";
+  return null;
+}
+
 const parmi = <T extends string>(liste: readonly T[], v: string): T | null => liste.find((x) => normaliser(x) === normaliser(v)) ?? null;
 
 const LIMITES: Partial<Record<Champ, number>> = { nom: 200, ville: 200, adresse: 300, contactNom: 200, telephone: 40, instagramUrl: 300, siteUrl: 300, angleAccroche: 500 };
@@ -136,7 +171,14 @@ export function lireLigne(cellules: string[], c: Correspondance, origineParDefau
   };
 
   const nom = texte("nom") ?? "";
-  const ville = texte("ville") ?? "";
+  const adresse = texte("adresse");
+  const lieu = lieuDansAdresse(adresse);
+  // La ville de l'adresse fait foi : la colonne « ville » d'un export peut être la zone de recherche.
+  let ville = texte("ville") ?? "";
+  if (lieu && normaliser(lieu.ville) !== normaliser(ville)) {
+    if (ville) avertissements.push(`Ville prise dans l'adresse : ${lieu.ville} (et non ${ville})`);
+    ville = lieu.ville;
+  }
   if (!nom) erreurs.push("Nom manquant");
   if (!ville) erreurs.push("Ville manquante");
 
@@ -147,6 +189,12 @@ export function lireLigne(cellules: string[], c: Correspondance, origineParDefau
     if (/e\+/i.test(siretBrut) || /,/.test(siretBrut)) erreurs.push("SIRET abîmé par Excel (format nombre) : mets la colonne au format Texte");
     else if (!/^\d{14}$/.test(chiffres)) erreurs.push(`SIRET invalide (« ${siretBrut} ») : 14 chiffres attendus`);
     else siret = chiffres;
+  }
+  // Un SIRET rattaché à un autre code postal que l'adresse désigne sans doute une autre entreprise : on ne le garde pas.
+  const cpColonne = brut("codePostal");
+  if (siret && lieu && /^\d{5}$/.test(cpColonne) && cpColonne !== lieu.codePostal) {
+    avertissements.push(`SIRET écarté : il est rattaché au ${cpColonne}, l'adresse est au ${lieu.codePostal}`);
+    siret = null;
   }
 
   const email = brut("email") || null;
@@ -168,7 +216,7 @@ export function lireLigne(cellules: string[], c: Correspondance, origineParDefau
 
   let secteur: Valeurs["secteur"] = null;
   if (brut("secteur")) {
-    secteur = parmi(SECTEURS, brut("secteur"));
+    secteur = parmi(SECTEURS, brut("secteur")) ?? secteurDuMetier(brut("secteur"));
     if (!secteur) avertissements.push(`Secteur « ${brut("secteur")} » non reconnu : laissé vide`);
   }
 
@@ -177,11 +225,12 @@ export function lireLigne(cellules: string[], c: Correspondance, origineParDefau
   if (dep) {
     departement = parmi(DEPARTEMENTS, dep) ?? (/^\d{2}$/.test(dep) ? departementDe(dep) : null);
     if (!departement) avertissements.push(`Département « ${dep} » non reconnu : laissé vide`);
-  } else if (/^\d{5}$/.test(brut("codePostal"))) departement = departementDe(brut("codePostal"));
+  } else if (lieu) departement = departementDe(lieu.codePostal);
+  else if (/^\d{5}$/.test(cpColonne)) departement = departementDe(cpColonne);
 
   let origine = origineParDefaut;
   if (brut("origine")) {
-    const o = parmi(ORIGINES, brut("origine"));
+    const o = origineReconnue(brut("origine"));
     if (o) origine = o;
     else avertissements.push(`Origine « ${brut("origine")} » non reconnue : « ${origineParDefaut} » utilisée`);
   }
@@ -191,7 +240,7 @@ export function lireLigne(cellules: string[], c: Correspondance, origineParDefau
     valeurs: {
       nom,
       ville,
-      adresse: texte("adresse"),
+      adresse,
       siret,
       secteur,
       departement,
